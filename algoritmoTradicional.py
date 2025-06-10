@@ -21,24 +21,22 @@ adicionarCaminho(0, 1, 3)
 for i in range(len(matrizCaminhos)):
     print(matrizCaminhos[i])
 
-populacao = [[]]
-
-print(populacao)
-
 # Inicialização da população
 
 def inicializarPopulacao():
-    populacao = [[]]
+    populacao = [[-1 for _ in range(QUANT_CIDADES + 1)] for _ in range(TAMANHO_POPULACAO)]
 
     for i in range(TAMANHO_POPULACAO):
         for j in range(QUANT_CIDADES + 1):
-            if(j == 0 or j == QUANT_CIDADES + 1):
+            if(j == 0):
                 populacao[i][j] = CIDADE_ORIGEM
             else:
                 cidadeAnterior = populacao[i][j - 1]
 
-                destino = random.randint(0, QUANT_CIDADES - 1)
+                while(populacao[i][j] == -1):
+                    if(j == QUANT_CIDADES + 1): # Continuar a partir daqui
+                        destino = random.randint(0, QUANT_CIDADES - 1)
 
-                if(matrizCaminhos[cidadeAnterior][destino] > 0):
-                    populacao[i][j] = destino
+                    if(matrizCaminhos[cidadeAnterior][destino] > 0):
+                        populacao[i][j] = destino
             
