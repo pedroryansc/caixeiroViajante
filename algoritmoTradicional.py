@@ -8,7 +8,7 @@ CIDADE_ORIGEM = 0
 TAMANHO_POPULACAO = 10
 TAMANHO_GENOMA = QUANT_CIDADES + 1
 GERACOES = 10
-TAXA_MUTACAO = 0.01
+TAXA_MUTACAO = 0.05
 
 def gerarMatrizCaminhos():
     matrizCaminhos = [[0 for _ in range(QUANT_CIDADES)] for _ in range(QUANT_CIDADES)]
@@ -41,7 +41,6 @@ adicionarCaminho(matrizCaminhos, 2, 3, 9)
 adicionarCaminho(matrizCaminhos, 2, 4, 8)
 adicionarCaminho(matrizCaminhos, 3, 4, 16)
 
-
 for i in range(len(matrizCaminhos)):
     print(matrizCaminhos[i])
 
@@ -52,7 +51,7 @@ def inicializarPopulacao():
 
     for i in range(TAMANHO_POPULACAO):
         for j in range(TAMANHO_GENOMA):
-            if(j == 0 or j == QUANT_CIDADES):
+            if(j == 0 or j == TAMANHO_GENOMA - 1):
                 populacao[i][j] = CIDADE_ORIGEM
             else:
                 while(populacao[i][j] == -1):
@@ -143,6 +142,25 @@ def crossover(pai1, pai2):
 
     return filho1, filho2
 
+def fazerMutacao(individuo):
+    # print(f"Indivíduo: {individuo}")
+
+    for i in range(TAMANHO_GENOMA):
+        if(i > 0 and i < TAMANHO_GENOMA - 1):
+            if(random.random() < TAXA_MUTACAO):
+                segundoGene = i
+
+                while(segundoGene == i):
+                    segundoGene = random.randint(1, TAMANHO_GENOMA - 2)
+
+                aux = individuo[i]
+                individuo[i] = individuo[segundoGene]
+                individuo[segundoGene] = aux
+
+    # print(f"Indivíduo com mutação: {individuo}\n")
+
+    return individuo
+
 # Algoritmo Genético
 
 def executarAG():
@@ -164,8 +182,8 @@ def executarAG():
             filho1, filho2 = crossover(pai1, pai2)
             # print(f"Filho 1: {filho1}; e Filho 2: {filho2}")
 
-            novaPopulacao.append(filho1)
-            novaPopulacao.append(filho2)
+            novaPopulacao.append(fazerMutacao(filho1))
+            novaPopulacao.append(fazerMutacao(filho2))
 
         populacao = novaPopulacao
 
