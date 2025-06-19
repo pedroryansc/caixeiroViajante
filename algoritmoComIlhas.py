@@ -2,13 +2,13 @@ import random
 
 # Parâmetros do algoritmo
 
-QUANT_CIDADES = 10
+QUANT_CIDADES = 5
 CIDADE_ORIGEM = 0
 
-TAMANHO_POPULACAO = 30
+TAMANHO_POPULACAO = 10
 TAMANHO_GENOMA = QUANT_CIDADES + 1
 GERACOES = 10
-TAXA_MUTACAO = 0.01
+TAXA_MUTACAO = 0.05
 
 def gerarMatrizCaminhos():
     matrizCaminhos = [[0 for _ in range(QUANT_CIDADES)] for _ in range(QUANT_CIDADES)]
@@ -28,8 +28,8 @@ def adicionarCaminho(matrizCaminhos, origem, destino, peso):
 
 # Inicialização da matriz de adjacência dos caminhos entre as cidades
 
-matrizCaminhos = gerarMatrizCaminhos() # [[0 for _ in range(QUANT_CIDADES)] for _ in range(QUANT_CIDADES)]
-'''
+matrizCaminhos = [[0 for _ in range(QUANT_CIDADES)] for _ in range(QUANT_CIDADES)]
+
 adicionarCaminho(matrizCaminhos, 0, 1, 15)
 adicionarCaminho(matrizCaminhos, 0, 2, 12)
 adicionarCaminho(matrizCaminhos, 0, 3, 7)
@@ -40,7 +40,6 @@ adicionarCaminho(matrizCaminhos, 1, 4, 14)
 adicionarCaminho(matrizCaminhos, 2, 3, 9)
 adicionarCaminho(matrizCaminhos, 2, 4, 8)
 adicionarCaminho(matrizCaminhos, 3, 4, 16)
-'''
 
 for i in range(len(matrizCaminhos)):
     print(matrizCaminhos[i])
