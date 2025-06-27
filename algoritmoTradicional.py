@@ -98,7 +98,7 @@ def selecionarPais(populacao, fitness):
 
     # Para evitar a possibilidade do mesmo indivíduo ser selecionado como o segundo pai,
     # o primeiro pai é removido da amostra
-    for i in range(len(amostra)):
+    for i in range(tamanhoTorneio):
         if(amostra[i][0] == pai1):
             posicao = i
 

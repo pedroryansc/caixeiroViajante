@@ -1,4 +1,4 @@
-import random
+import math, random
 
 # Parâmetros do algoritmo
 
@@ -9,6 +9,13 @@ TAMANHO_POPULACAO = 30
 TAMANHO_GENOMA = QUANT_CIDADES + 1
 GERACOES = 10
 TAXA_MUTACAO = 0.01
+
+# Parâmetros da estratégia com ilhas
+
+QUANT_ILHAS = 3
+TAMANHO_ILHA = math.ceil(TAMANHO_POPULACAO / QUANT_ILHAS)
+FREQ_MIGRACAO = 3
+TAXA_MIGRACAO = 2
 
 # Função para criar a matriz dos caminhos entre as cidades com distâncias definidas aleatoriamente
 
@@ -52,21 +59,23 @@ for i in range(len(matrizCaminhos)):
 # Passo 1: Inicialização da população
 
 def inicializarPopulacao():
-    populacao = [[-1 for _ in range(TAMANHO_GENOMA)] for _ in range(TAMANHO_POPULACAO)]
+    # A população é dividida em ilhas, as quais têm a mesma quantidade de indivíduos
+    populacao = [[[-1 for _ in range(TAMANHO_GENOMA)] for _ in range(TAMANHO_ILHA)] for _ in range(QUANT_ILHAS)]
 
-    for i in range(TAMANHO_POPULACAO):
-        for j in range(TAMANHO_GENOMA):
-            # Verificação para adicionar a cidade de origem no início e fim da rota
-            if(j == 0 or j == TAMANHO_GENOMA - 1):
-                populacao[i][j] = CIDADE_ORIGEM
-            # Caso seja outra posição do cromossomo, uma cidade aleatória que ainda 
-            # não está rota é adicionada
-            else:
-                while(populacao[i][j] == -1):
-                    destino = random.randint(0, QUANT_CIDADES - 1)
+    for ilha in populacao:
+        for i in range(TAMANHO_ILHA):
+            for j in range(TAMANHO_GENOMA):
+                # Verificação para adicionar a cidade de origem no início e fim da rota
+                if(j == 0 or j == TAMANHO_GENOMA - 1):
+                    ilha[i][j] = CIDADE_ORIGEM
+                # Caso seja outra posição do cromossomo, uma cidade aleatória que ainda 
+                # não está rota é adicionada
+                else:
+                    while(ilha[i][j] == -1):
+                        destino = random.randint(0, QUANT_CIDADES - 1)
 
-                    if(destino not in populacao[i]):
-                        populacao[i][j] = destino
+                        if(destino not in ilha[i]):
+                            ilha[i][j] = destino
 
     return populacao
 
@@ -98,7 +107,7 @@ def selecionarPais(populacao, fitness):
 
     # Para evitar a possibilidade do mesmo indivíduo ser selecionado como o segundo pai,
     # o primeiro pai é removido da amostra
-    for i in range(len(amostra)):
+    for i in range(tamanhoTorneio):
         if(amostra[i][0] == pai1):
             posicao = i
 
@@ -196,34 +205,92 @@ def fazerMutacao(individuo):
 
     return individuo
 
+# Migração de indivíduos (Topologia em anel)
+
+def migrarIndividuos(populacao):
+    individuosMigracao = []
+
+    # Escolha aleatória dos indivíduos que vão migrar para outras ilhas
+    for ilha in populacao:
+        migracao = random.sample(ilha, TAXA_MIGRACAO)
+
+        # Os indivíduos escolhidos são removidos da subpopulação de sua ilha 
+        for i in range(TAXA_MIGRACAO):
+            for posicaoIndividuo in range(len(ilha)):
+                if(ilha[posicaoIndividuo] == migracao[i]):
+                    posicao = posicaoIndividuo
+
+            ilha.pop(posicao)
+
+        individuosMigracao.append(migracao)
+
+    # Migração dos indivíduos para a ilha seguinte na topologia em anel
+    for ilha in range(QUANT_ILHAS):
+        # Caso seja a primeira ilha, ela receberá os indivíduos da última ilha
+        # (a qual é anterior à ela)
+        if(ilha == 0):
+            for individuo in individuosMigracao[QUANT_ILHAS - 1]:
+                populacao[ilha].append(individuo)
+        # Caso contrário, a ilha recebe os indivíduos da ilha anterior normalmente
+        else:
+            for individuo in individuosMigracao[ilha - 1]:
+                populacao[ilha].append(individuo)
+
+    return populacao
+
 # Algoritmo Genético
 
 def executarAG():
     populacao = inicializarPopulacao()
 
-    print(populacao)
+    for ilha in range(QUANT_ILHAS):
+        print(f"Ilha {ilha}: {populacao[ilha]}")
+
+    geracoesMigracao = 0
 
     for geracao in range(GERACOES):
-        # Avaliação da aptidão de cada indivíduo
-        fitness = [avaliarFitness(individuo) for individuo in populacao]
+        print(f"\nGeração {geracao}:")
 
-        melhorIndividuo = min(populacao, key=avaliarFitness)
-        print(f"Geração {geracao}: Melhor aptidão = {avaliarFitness(melhorIndividuo)} | Melhor indivíduo = {melhorIndividuo}")
+        geracoesMigracao += 1
+
+        # Em cada geração, cada ilha tem sua subpopulação atualizada
+        for ilha in range(QUANT_ILHAS):
+            # Avaliação da aptidão de cada indivíduo
+            fitness = [avaliarFitness(individuo) for individuo in populacao[ilha]]
+
+            melhorIndividuo = min(populacao[ilha], key=avaliarFitness)
+            print(f"Ilha {ilha}: Melhor aptidão = {avaliarFitness(melhorIndividuo)} | Melhor indivíduo = {melhorIndividuo}")
+            
+            novaIlha = []
+
+            # Criação da nova geração
+            while(len(novaIlha) < TAMANHO_ILHA):
+                pai1, pai2 = selecionarPais(populacao[ilha], fitness)
+
+                filho1, filho2 = crossover(pai1, pai2)
+
+                novaIlha.append(fazerMutacao(filho1))
+                novaIlha.append(fazerMutacao(filho2))
+
+            populacao[ilha] = novaIlha
         
-        novaPopulacao = []
+        # Se a frequência de migração é atingida, a migração de indivíduos é realizada
+        if(geracoesMigracao == FREQ_MIGRACAO):
+            populacao = migrarIndividuos(populacao)
 
-        # Criação da nova geração
-        while(len(novaPopulacao) < TAMANHO_POPULACAO):
-            pai1, pai2 = selecionarPais(populacao, fitness)
+            geracoesMigracao = 0
 
-            filho1, filho2 = crossover(pai1, pai2)
+    solucoesIlhas = []
 
-            novaPopulacao.append(fazerMutacao(filho1))
-            novaPopulacao.append(fazerMutacao(filho2))
+    # Apresentação da melhor solução encontrada em cada ilha
+    for ilha in range(QUANT_ILHAS):
+        melhorSolucaoIlha = min(populacao[ilha], key=avaliarFitness)
 
-        populacao = novaPopulacao
+        print(f"\nMelhor solução da Ilha {ilha}: {melhorSolucaoIlha} - Fitness de {avaliarFitness(melhorSolucaoIlha)}")
 
-    return min(populacao, key=avaliarFitness)
+        solucoesIlhas.append(melhorSolucaoIlha)
+
+    return min(solucoesIlhas, key=avaliarFitness)
 
 # Execução do algoritmo
 
