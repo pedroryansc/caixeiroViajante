@@ -15,7 +15,8 @@ TAXA_MUTACAO = 0.01
 QUANT_ILHAS = 3
 TAMANHO_ILHA = math.ceil(TAMANHO_POPULACAO / QUANT_ILHAS)
 FREQ_MIGRACAO = 3
-TAXA_MIGRACAO = 2
+TAXA_MIGRACAO = 0.2
+QUANT_MIGRACAO = math.ceil(TAMANHO_ILHA * TAXA_MIGRACAO)
 
 # Função para criar a matriz dos caminhos entre as cidades com distâncias definidas aleatoriamente
 
@@ -212,10 +213,10 @@ def migrarIndividuos(populacao):
 
     # Escolha aleatória dos indivíduos que vão migrar para outras ilhas
     for ilha in populacao:
-        migracao = random.sample(ilha, TAXA_MIGRACAO)
+        migracao = random.sample(ilha, QUANT_MIGRACAO)
 
         # Os indivíduos escolhidos são removidos da subpopulação de sua ilha 
-        for i in range(TAXA_MIGRACAO):
+        for i in range(QUANT_MIGRACAO):
             for posicaoIndividuo in range(len(ilha)):
                 if(ilha[posicaoIndividuo] == migracao[i]):
                     posicao = posicaoIndividuo

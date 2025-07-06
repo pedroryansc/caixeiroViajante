@@ -116,12 +116,14 @@ def crossover(pai1, pai2):
     
     # Intervalo para escolher o Ponto 1:
     # Começo: 2 -> Evita um ponto de corte ao lado da cidade de origem;
-    # Fim: "TAMANHO_GENOMA - 3" -> Evita a mesma coisa e garante pelo menos um gene (além da origem) depois do Ponto 2
+    # Fim: "TAMANHO_GENOMA - 3" -> Evita a mesma coisa e garante pelo menos um gene 
+    # (além da origem) depois do Ponto 2
     ponto1 = random.randint(2, TAMANHO_GENOMA - 3)
 
     # Intervalo para escolher o Ponto 2:
     # Começo: Logo após o Ponto 1 -> Garante pelo menos um gene entre os dois pontos;
-    # Fim: "TAMANHO_GENOMA - 2" -> Evita um ponto ao lado da cidade de origem e garante pelo menos um gene (além da origem) depois do Ponto 2
+    # Fim: "TAMANHO_GENOMA - 2" -> Evita um ponto ao lado da cidade de origem e garante 
+    # pelo menos um gene (além da origem) depois do Ponto 2
     ponto2 = random.randint(ponto1 + 1, TAMANHO_GENOMA - 2)
 
     filho1 = [-1 for _ in range(TAMANHO_GENOMA)]
