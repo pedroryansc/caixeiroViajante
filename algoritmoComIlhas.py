@@ -2,12 +2,12 @@ import math, random
 
 # Parâmetros do algoritmo
 
-QUANT_CIDADES = 5
+QUANT_CIDADES = 30
 CIDADE_ORIGEM = 0
 
 TAMANHO_POPULACAO = 30
 TAMANHO_GENOMA = QUANT_CIDADES + 1
-GERACOES = 10
+GERACOES = 100
 TAXA_MUTACAO = 0.01
 
 # Parâmetros da estratégia com ilhas
@@ -40,19 +40,38 @@ def adicionarCaminho(matrizCaminhos, origem, destino, peso):
 
 # Inicialização da matriz dos caminhos entre as cidades
 
-matrizCaminhos = gerarMatrizCaminhos() # [[0 for _ in range(QUANT_CIDADES)] for _ in range(QUANT_CIDADES)]
-'''
-adicionarCaminho(matrizCaminhos, 0, 1, 15)
-adicionarCaminho(matrizCaminhos, 0, 2, 12)
-adicionarCaminho(matrizCaminhos, 0, 3, 7)
-adicionarCaminho(matrizCaminhos, 0, 4, 4)
-adicionarCaminho(matrizCaminhos, 1, 2, 10)
-adicionarCaminho(matrizCaminhos, 1, 3, 20)
-adicionarCaminho(matrizCaminhos, 1, 4, 14)
-adicionarCaminho(matrizCaminhos, 2, 3, 9)
-adicionarCaminho(matrizCaminhos, 2, 4, 8)
-adicionarCaminho(matrizCaminhos, 3, 4, 16)
-'''
+matrizCaminhos = matrizCaminhos = [ # gerarMatrizCaminhos()
+    [0, 4, 10, 20, 18, 10, 7, 9, 12, 2, 9, 3, 1, 18, 14, 14, 12, 10, 3, 18, 16, 19, 15, 20, 14, 5, 9, 10, 17, 17],
+    [4, 0, 19, 13, 12, 1, 17, 13, 3, 2, 12, 4, 6, 3, 4, 17, 9, 20, 6, 4, 9, 19, 19, 20, 2, 9, 15, 14, 20, 9],
+    [10, 19, 0, 1, 2, 9, 15, 7, 8, 16, 13, 11, 6, 20, 7, 1, 9, 5, 1, 19, 6, 12, 5, 4, 5, 15, 13, 12, 13, 8],
+    [20, 13, 1, 0, 12, 1, 15, 4, 11, 14, 9, 19, 1, 2, 10, 12, 14, 9, 2, 18, 8, 6, 2, 6, 1, 6, 12, 17, 4, 10],
+    [18, 12, 2, 12, 0, 17, 16, 18, 19, 1, 2, 4, 1, 9, 14, 15, 12, 12, 19, 16, 19, 8, 20, 6, 16, 20, 9, 10, 3, 11],
+    [10, 1, 9, 1, 17, 0, 2, 12, 14, 8, 13, 15, 1, 3, 2, 2, 10, 1, 4, 19, 20, 15, 11, 12, 10, 16, 6, 18, 5, 5],
+    [7, 17, 15, 15, 16, 2, 0, 1, 3, 10, 18, 10, 4, 17, 16, 1, 5, 15, 17, 1, 6, 8, 4, 19, 20, 11, 1, 1, 4, 2],
+    [9, 13, 7, 4, 18, 12, 1, 0, 9, 10, 16, 1, 11, 20, 16, 6, 10, 10, 18, 1, 5, 11, 4, 17, 1, 7, 8, 6, 11, 7],
+    [12, 3, 8, 11, 19, 14, 3, 9, 0, 8, 1, 11, 9, 14, 16, 5, 5, 15, 18, 2, 3, 16, 6, 4, 5, 20, 11, 2, 14, 17],
+    [2, 2, 16, 14, 1, 8, 10, 10, 8, 0, 20, 7, 7, 8, 10, 12, 14, 20, 16, 18, 13, 20, 1, 12, 8, 16, 14, 7, 7, 5],
+    [9, 12, 13, 9, 2, 13, 18, 16, 1, 20, 0, 13, 20, 14, 4, 6, 1, 19, 15, 15, 18, 8, 2, 6, 8, 18, 3, 11, 5, 17],
+    [3, 4, 11, 19, 4, 15, 10, 1, 11, 7, 13, 0, 9, 4, 13, 15, 7, 10, 13, 5, 1, 3, 7, 16, 9, 5, 12, 3, 5, 4],
+    [1, 6, 6, 1, 1, 1, 4, 11, 9, 7, 20, 9, 0, 5, 17, 19, 14, 1, 12, 9, 20, 13, 2, 15, 19, 19, 10, 5, 11, 6],
+    [18, 3, 20, 2, 9, 3, 17, 20, 14, 8, 14, 4, 5, 0, 15, 11, 10, 6, 2, 11, 20, 7, 4, 9, 9, 11, 2, 3, 16, 18],
+    [14, 4, 7, 10, 14, 2, 16, 16, 16, 10, 4, 13, 17, 15, 0, 10, 5, 4, 15, 1, 20, 14, 16, 9, 15, 5, 16, 8, 18, 19],
+    [14, 17, 1, 12, 15, 2, 1, 6, 5, 12, 6, 15, 19, 11, 10, 0, 3, 12, 16, 5, 3, 7, 19, 11, 3, 1, 12, 13, 2, 11],
+    [12, 9, 9, 14, 12, 10, 5, 10, 5, 14, 1, 7, 14, 10, 5, 3, 0, 2, 1, 17, 10, 17, 5, 3, 8, 6, 19, 9, 17, 15],
+    [10, 20, 5, 9, 12, 1, 15, 10, 15, 20, 19, 10, 1, 6, 4, 12, 2, 0, 14, 14, 4, 8, 11, 16, 15, 2, 7, 15, 5, 1],
+    [3, 6, 1, 2, 19, 4, 17, 18, 18, 16, 15, 13, 12, 2, 15, 16, 1, 14, 0, 6, 20, 1, 3, 1, 7, 18, 1, 3, 8, 2],
+    [18, 4, 19, 18, 16, 19, 1, 1, 2, 18, 15, 5, 9, 11, 1, 5, 17, 14, 6, 0, 7, 4, 5, 19, 8, 11, 2, 11, 12, 15],
+    [16, 9, 6, 8, 19, 20, 6, 5, 3, 13, 18, 1, 20, 20, 20, 3, 10, 4, 20, 7, 0, 7, 8, 2, 2, 14, 11, 15, 13, 5],
+    [19, 19, 12, 6, 8, 15, 8, 11, 16, 20, 8, 3, 13, 7, 14, 7, 17, 8, 1, 4, 7, 0, 15, 15, 11, 5, 19, 8, 7, 2],
+    [15, 19, 5, 2, 20, 11, 4, 4, 6, 1, 2, 7, 2, 4, 16, 19, 5, 11, 3, 5, 8, 15, 0, 5, 14, 19, 15, 10, 17, 20],
+    [20, 20, 4, 6, 6, 12, 19, 17, 4, 12, 6, 16, 15, 9, 9, 11, 3, 16, 1, 19, 2, 15, 5, 0, 6, 18, 16, 1, 12, 3],
+    [14, 2, 5, 1, 16, 10, 20, 1, 5, 8, 8, 9, 19, 9, 15, 3, 8, 15, 7, 8, 2, 11, 14, 6, 0, 9, 6, 20, 15, 9],
+    [5, 9, 15, 6, 20, 16, 11, 7, 20, 16, 18, 5, 19, 11, 5, 1, 6, 2, 18, 11, 14, 5, 19, 18, 9, 0, 3, 16, 17, 2],
+    [9, 15, 13, 12, 9, 6, 1, 8, 11, 14, 3, 12, 10, 2, 16, 12, 19, 7, 1, 2, 11, 19, 15, 16, 6, 3, 0, 11, 9, 8],
+    [10, 14, 12, 17, 10, 18, 1, 6, 2, 7, 11, 3, 5, 3, 8, 13, 9, 15, 3, 11, 15, 8, 10, 1, 20, 16, 11, 0, 4, 4],
+    [17, 20, 13, 4, 3, 5, 4, 11, 14, 7, 5, 5, 11, 16, 18, 2, 17, 5, 8, 12, 13, 7, 17, 12, 15, 17, 9, 4, 0, 6],
+    [17, 9, 8, 10, 11, 5, 2, 7, 17, 5, 17, 4, 6, 18, 19, 11, 15, 1, 2, 15, 5, 2, 20, 3, 9, 2, 8, 4, 6, 0]
+]
 
 for i in range(len(matrizCaminhos)):
     print(matrizCaminhos[i])
@@ -70,7 +89,7 @@ def inicializarPopulacao():
                 if(j == 0 or j == TAMANHO_GENOMA - 1):
                     ilha[i][j] = CIDADE_ORIGEM
                 # Caso seja outra posição do cromossomo, uma cidade aleatória que ainda 
-                # não está rota é adicionada
+                # não está na rota é adicionada
                 else:
                     while(ilha[i][j] == -1):
                         destino = random.randint(0, QUANT_CIDADES - 1)
@@ -291,11 +310,20 @@ def executarAG():
 
         solucoesIlhas.append(melhorSolucaoIlha)
 
+    # O resultado do AG é a melhor solução entre todas as ilhas, ou seja, a que apresenta o caminho mais curto
     return min(solucoesIlhas, key=avaliarFitness)
 
 # Execução do algoritmo
 
+import time
+
+inicio = time.time()
 melhorSolucao = executarAG()
+fim = time.time()
+
+tempo = fim - inicio
+
 print("\nMelhor solução encontrada:")
 print(f"Rota: {melhorSolucao}")
 print(f"Fitness: {avaliarFitness(melhorSolucao)}")
+print(f"Tempo de execução (s): {tempo}")
